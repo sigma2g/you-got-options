@@ -19,8 +19,18 @@ const db = {
     try { return await res.json(); } catch { return null; }
   },
   get: (table: string, filter = "") => db.query(table, "GET", null, filter),
-  post: (table: string, body: any) => db.query(table, "POST", body),
-  patch: (table: string, body: any, filter: string) => db.query(table, "PATCH", body, filter)
+  post: (table: string, body: any) => {
+    const cleaned = Object.fromEntries(
+      Object.entries(body).map(([k, v]) => [k, v === "" ? null : v])
+    );
+    return db.query(table, "POST", cleaned);
+  },
+  patch: (table: string, body: any, filter: string) => {
+    const cleaned = Object.fromEntries(
+      Object.entries(body).map(([k, v]) => [k, v === "" ? null : v])
+    );
+    return db.query(table, "PATCH", cleaned, filter);
+  }
 };
 
 const INSTRUMENTS = ["AAPL","TEM","SPY","IWM","QQQ"];
