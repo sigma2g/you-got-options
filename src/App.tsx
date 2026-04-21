@@ -154,7 +154,7 @@ export default function App() {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [mentorNote, setMentorNote] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+const load = useCallback(async () => {
     setLoading(true);
     try {
       const [s, p] = await Promise.all([
@@ -162,7 +162,18 @@ export default function App() {
         db.get("trader_profile", "?limit=1")
       ]);
       setSessions(s || []);
-      setProfile(p?.[0] || null);
+      const raw = p?.[0] || null;
+      if (raw) {
+        raw.total_trades = raw.total_trades ?? 0;
+        raw.win_rate = raw.win_rate ?? 0;
+        raw.avg_r = raw.avg_r ?? 0;
+        raw.account_baseline = raw.account_baseline ?? 0;
+        raw.current_balance = raw.current_balance ?? 0;
+        raw.best_instrument = raw.best_instrument ?? 'N/A';
+        raw.worst_instrument = raw.worst_instrument ?? 'N/A';
+        raw.best_setup = raw.best_setup ?? 'N/A';
+      }
+      setProfile(raw);
     } catch (e: any) { setError(e.message); }
     setLoading(false);
   }, []);
